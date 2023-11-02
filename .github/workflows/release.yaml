@@ -48,18 +48,16 @@ jobs:
           replace: "${{steps.release_number.outputs.substring}}"
           include: "Makefile"
           regex: true
-
-      - name: Commit files
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git status
-          git commit -a -m "Bump versions to ${{steps.release_number.outputs.substring}} "
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          commit-message: Bump versions to ${{steps.release_number.outputs.substring}}
+          delete-branch: true
           branch: ${{ github.ref_name }}
+          title: Release ${{steps.release_number.outputs.substring}}
+          body: Automated PR to track the release of version-checker
 
   helm-release:
     runs-on: ubuntu-latest
